@@ -1,68 +1,28 @@
 {
   "badgeId": "american-business",
   "title": "American Business",
-  "summary": "Learn how businesses work, plan a simple venture, track results, and understand ethics, marketing, and investing basics.",
+  "summary": "Learn how businesses operate, design a venture, practice marketing ethics, and explore investing basics.",
   "priceUSD": 20,
   "officialUrl": "https://www.scouting.org/merit-badges/american-business/",
   "resources": [
-    {
-      "title": "SBA Learning Center",
-      "url": "https://www.sba.gov/learning-center",
-      "description": "Free mini-courses on planning, financing, and managing small businesses."
-    },
-    {
-      "title": "Junior Achievement – Student Programs",
-      "url": "https://jausa.ja.org/programs",
-      "description": "Entrepreneurship and personal finance activities geared toward teens."
-    },
-    {
-      "title": "Investopedia: Introduction to Business",
-      "url": "https://www.investopedia.com/guides/starting-business/",
-      "description": "Plain-language guide to core concepts like revenue, profit, and cash flow."
-    }
+    {"title": "Junior Achievement – Learning Resources", "url": "https://www.juniorachievement.org/", "description": "Entrepreneurship and personal finance."},
+    {"title": "Investor.gov – Beginners", "url": "https://www.investor.gov/introduction-investing", "description": "SEC guide to investing basics and fraud tips."},
+    {"title": "FTC – Truth in Advertising", "url": "https://www.ftc.gov/business-guidance/advertising-and-marketing", "description": "Rules and ethics for fair advertising."}
   ],
   "modules": [
-    {
-      "id": "how-business-works",
-      "title": "How Business Works",
-      "minutes": 35,
-      "type": "reading",
-      "instructions": "Define revenue, cost, profit, cash flow, and break-even in your own words. Give a real-world example for two terms."
-    },
-    {
-      "id": "micro-venture-plan",
-      "title": "Plan a Micro-Venture",
-      "minutes": 90,
-      "type": "project",
-      "instructions": "Plan a simple business (lawn care, tutoring, crafts). Upload a 1-page plan: product/service, customers, price, costs, and expected profit."
-    },
-    {
-      "id": "run-and-track",
-      "title": "Run & Track Results",
-      "minutes": 120,
-      "type": "report",
-      "instructions": "Operate your venture for a short period OR simulate with 3–5 transactions. Upload a basic ledger (date, item, revenue, cost) and a profit summary."
-    },
-    {
-      "id": "marketing-ethics",
-      "title": "Marketing & Ethics",
-      "minutes": 45,
-      "type": "reflection",
-      "prompt": "Draft a simple ad or flyer. Then write a paragraph on truthful advertising and one ethical choice you’d make as an owner."
-    },
-    {
-      "id": "investing-basics",
-      "title": "Investing Basics",
-      "minutes": 40,
-      "type": "quiz",
-      "quiz": [
-        { "q": "What is diversification?", "a": "Spreading investments to reduce risk." },
-        { "q": "Stocks vs. bonds (one difference)?", "a": "Stocks = ownership and variable returns; bonds = loans with fixed interest." }
-      ]
-    }
+    {"id": "business-models", "title": "How Business Works", "minutes": 35, "type": "reading", "instructions": "Define revenue, expenses, profit, and cash flow in your own words with one real-world example."},
+    {"id": "venture-plan", "title": "Plan a Micro-Venture", "minutes": 90, "type": "project", "instructions": "Outline a simple product or service, target customers, pricing, costs, and success metrics."},
+    {"id": "run-trial", "title": "Operate & Track", "minutes": 120, "type": "report", "instructions": "Run the venture (or simulation) for 3–5 transactions. Upload a ledger showing revenue, costs, and lessons learned."},
+    {"id": "marketing", "title": "Marketing & Ethics", "minutes": 45, "type": "reflection", "prompt": "Draft an advertisement and explain how you will keep it truthful and fair to customers."},
+    {"id": "investing", "title": "Investing Basics", "minutes": 40, "type": "quiz", "quiz": [
+      {"q": "What does diversification help reduce?", "a": "Risk by spreading investments across assets."},
+      {"q": "Stocks vs. bonds—name one difference.", "a": "Stocks are ownership with variable returns; bonds are loans with set interest."},
+      {"q": "True/False: If a deal sounds too good to be true, it probably is.", "a": "True"}
+    ]}
   ],
   "checkpoints": [
-    { "id": "mid", "label": "Plan Review", "after": "micro-venture-plan" },
-    { "id": "final", "label": "Final Review", "after": "run-and-track" }
+    {"id": "cpA", "label": "Plan Review", "after": "venture-plan"},
+    {"id": "cpB", "label": "Trial Results", "after": "run-trial"},
+    {"id": "final", "label": "Final Review", "after": "investing"}
   ]
 }
