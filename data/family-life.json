@@ -1,67 +1,24 @@
 {
   "badgeId": "family-life",
   "title": "Family Life",
-  "summary": "Strengthen your home team: what a family is, how to communicate, share responsibilities, plan meetings, and complete service together.",
+  "summary": "Understand family roles, build positive routines, practice budgeting, and carry out a meaningful service project at home.",
   "priceUSD": 20,
   "officialUrl": "https://www.scouting.org/merit-badges/family-life/",
   "resources": [
-    {
-      "title": "American Academy of Pediatrics – HealthyChildren.org Family Life",
-      "url": "https://www.healthychildren.org/English/family-life/",
-      "description": "Articles on communication, routines, and supporting one another at home."
-    },
-    {
-      "title": "Utah State University Extension – Family Meetings Guide",
-      "url": "https://extension.usu.edu/familyrelationships/quality-time/family-meetings",
-      "description": "Step-by-step advice for planning productive family meetings."
-    },
-    {
-      "title": "DoSomething.org – Family Service Ideas",
-      "url": "https://www.dosomething.org/us/articles/family-volunteering-ideas",
-      "description": "Project ideas for serving together and tracking impact."
-    }
+    {"title": "CDC – Essentials for Parenting", "url": "https://www.cdc.gov/parents/essentials/", "description": "Positive communication and routines."},
+    {"title": "Extension – Family Meetings 101", "url": "https://extension.umn.edu/", "description": "How to run effective family meetings."},
+    {"title": "Consumer.gov – Budgeting Basics", "url": "https://www.consumer.gov/", "description": "Simple budgeting for families and teens."}
   ],
   "modules": [
-    {
-      "id": "what-is-family",
-      "title": "What Is a Family?",
-      "minutes": 30,
-      "type": "reading",
-      "instructions": "List five positive family traits (e.g., love, security, respect, trust, time together) and give one example you’ve seen at home."
-    },
-    {
-      "id": "responsibilities",
-      "title": "Shared Roles & Responsibilities",
-      "minutes": 40,
-      "type": "project",
-      "instructions": "Create a one-week home duties chart (room care, meals, general chores). Track completion and reflect on what changed."
-    },
-    {
-      "id": "family-meeting",
-      "title": "Run a Family Meeting",
-      "minutes": 45,
-      "type": "report",
-      "instructions": "Set an agenda, ground rules, and a simple problem-solving plan. Include at least one topic from: chores, tech use, finances, or family project. Upload notes."
-    },
-    {
-      "id": "family-service",
-      "title": "Family Service Project",
-      "minutes": 180,
-      "type": "serviceLog",
-      "instructions": "Plan and complete a small service or improvement (home, neighborhood, or community). Log who did what, hours, and results."
-    },
-    {
-      "id": "time-money",
-      "title": "Managing Time & Money",
-      "minutes": 35,
-      "type": "quiz",
-      "quiz": [
-        {"q":"Name two time-management practices families can use.","a":"To-do lists/priorities; shared schedule; buffer time; divide chores; weekly meeting."},
-        {"q":"What’s a simple first step in budgeting?","a":"Track income and expenses; separate fixed vs. flexible costs; set goals."}
-      ]
-    }
+    {"id": "family-roles", "title": "Family Roles", "minutes": 30, "type": "reflection", "prompt": "List three ways your family works as a team and one way you can support each person."},
+    {"id": "chore-plan", "title": "Chore & Routine Plan", "minutes": 60, "type": "project", "instructions": "Create a weekly responsibility chart with tasks, schedule, and accountability plan. Upload notes or photos."},
+    {"id": "family-meeting", "title": "Lead a Family Meeting", "minutes": 45, "type": "report", "instructions": "Plan and lead a meeting. Summarize agenda, decisions, and what worked well."},
+    {"id": "budget", "title": "Family Budget Basics", "minutes": 45, "type": "reading", "instructions": "Review at least two budgeting guides. Capture income sources, essential expenses, and one savings goal."},
+    {"id": "service", "title": "Family Service Project", "minutes": 210, "type": "serviceLog", "instructions": "Complete 3.5+ hours improving home life (organize space, care plan, sibling support). Log tasks, hours, and impact."}
   ],
   "checkpoints": [
-    {"id":"final","label":"Counselor Review","after":"family-service"}
+    {"id": "cpA", "label": "Routine Plan Review", "after": "chore-plan"},
+    {"id": "cpB", "label": "Family Meeting Debrief", "after": "family-meeting"},
+    {"id": "final", "label": "Final Review", "after": "service"}
   ]
 }

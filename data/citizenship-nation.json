@@ -1,69 +1,30 @@
 {
   "badgeId": "citizenship-nation",
   "title": "Citizenship in the Nation",
-  "summary": "Explore the founding ideas, the Constitution and Bill of Rights, three branches, and how national issues are debated in a representative republic.",
+  "summary": "Understand the U.S. Constitution, explore federal institutions, follow current events, and show how national citizenship looks in action.",
   "priceUSD": 20,
   "officialUrl": "https://www.scouting.org/merit-badges/citizenship-in-the-nation/",
   "resources": [
-    {
-      "title": "National Constitution Center – Interactive Constitution",
-      "url": "https://constitutioncenter.org/interactive-constitution",
-      "description": "Clause-by-clause explanations with essays from scholars across perspectives."
-    },
-    {
-      "title": "iCivics: Branches of Power",
-      "url": "https://www.icivics.org/games/branches-power",
-      "description": "Online game exploring checks and balances across the three branches."
-    },
-    {
-      "title": "Library of Congress – Congress.gov Resources for Students",
-      "url": "https://www.congress.gov/resources/display/content/Students+Resources",
-      "description": "Guides to how federal laws are made and where to follow current bills."
-    }
+    {"title": "National Archives – Charters of Freedom", "url": "https://www.archives.gov/founding-docs", "description": "Declaration, Constitution, Bill of Rights."},
+    {"title": "Ben’s Guide to the U.S. Government", "url": "https://bensguide.gpo.gov/", "description": "Kid-friendly guide to branches and civics."},
+    {"title": "Congress.gov", "url": "https://www.congress.gov/", "description": "Track bills, committees, and member info."},
+    {"title": "C-SPAN Classroom", "url": "https://www.c-span.org/classroom/", "description": "Primary-source video clips on U.S. government."}
   ],
   "modules": [
-    {
-      "id": "foundations",
-      "title": "Foundations of American Democracy",
-      "minutes": 40,
-      "type": "reading",
-      "instructions": "Summarize the five core democratic concepts listed at the start of the pamphlet and explain one modern example for each."
-    },
-    {
-      "id": "constitution-billofrights",
-      "title": "Constitution & Bill of Rights",
-      "minutes": 60,
-      "type": "quiz",
-      "quiz": [
-        {"q": "What does 'popular sovereignty' mean?", "a": "The people hold supreme power and establish the government."},
-        {"q": "Name two protections in the First Amendment.", "a": "Any two of: religion, speech, press, assembly, petition."},
-        {"q": "What does the 10th Amendment reserve?", "a": "Powers not delegated to the federal government are reserved to the states or the people."}
-      ]
-    },
-    {
-      "id": "branches",
-      "title": "Three Branches & Checks",
-      "minutes": 45,
-      "type": "reading",
-      "instructions": "Create a simple chart listing the primary powers of Congress, the President, and the Supreme Court and one check each has on another branch."
-    },
-    {
-      "id": "national-issues",
-      "title": "National Issue Brief",
-      "minutes": 90,
-      "type": "research",
-      "instructions": "Choose a national issue (e.g., national security, economy, civil liberties). Write a 1-page balanced brief explaining two perspectives and a reasoned recommendation."
-    },
-    {
-      "id": "representative-letter",
-      "title": "Write Your Representative",
-      "minutes": 45,
-      "type": "reflection",
-      "prompt": "Draft a respectful letter to your U.S. Representative or Senators explaining your position on the issue from the prior module. Attach the draft."
-    }
+    {"id": "founding-docs", "title": "Study the Founding Documents", "minutes": 45, "type": "reading", "instructions": "Read the Declaration of Independence, Constitution, and Bill of Rights. Capture key principles and one modern example."},
+    {"id": "federal-landmark", "title": "Explore a Federal Site", "minutes": 60, "type": "report", "instructions": "Visit in person or tour virtually a national landmark, museum, or government building. Summarize what it represents and why it matters."},
+    {"id": "branches", "title": "Branches & Checks", "minutes": 25, "type": "quiz", "quiz": [
+      {"q": "Which branch interprets the law?", "choices": ["Legislative", "Executive", "Judicial"], "a": "Judicial"},
+      {"q": "Name one power of Congress that checks the President.", "a": "Examples: override veto, approve appointments/treaties, control funding."},
+      {"q": "True/False: Supreme Court justices serve 4-year terms.", "a": "False"}
+    ]},
+    {"id": "current-issue", "title": "Follow a National Issue", "minutes": 75, "type": "research", "instructions": "Track a federal issue for one week. Gather at least three sources and note perspectives and reliability."},
+    {"id": "citizen-action", "title": "Citizen Responsibilities", "minutes": 30, "type": "reflection", "prompt": "Explain one right and one responsibility of national citizenship and how you will practice each this year."},
+    {"id": "service", "title": "Serve National Ideals", "minutes": 180, "type": "serviceLog", "instructions": "Complete 3+ hours supporting democracy (e.g., flag ceremony, voter info drive, civic education). Log tasks and impact."}
   ],
   "checkpoints": [
-    {"id":"cpA","label":"Foundations Review","after":"constitution-billofrights"},
-    {"id":"final","label":"Final Counselor Review","after":"representative-letter"}
+    {"id": "cpA", "label": "Document Review", "after": "federal-landmark"},
+    {"id": "cpB", "label": "Current Issue Debrief", "after": "current-issue"},
+    {"id": "final", "label": "Final Review", "after": "service"}
   ]
 }
