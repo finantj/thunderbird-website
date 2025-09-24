@@ -1,68 +1,25 @@
 {
   "badgeId": "engineering",
   "title": "Engineering",
-  "summary": "Discover engineering fields, apply the design process, build and test a small prototype, and reflect on safety and teamwork.",
+  "summary": "Explore engineering disciplines, solve a design challenge, document testing, and consider ethics in technology.",
   "priceUSD": 20,
   "officialUrl": "https://www.scouting.org/merit-badges/engineering/",
   "resources": [
-    {
-      "title": "TryEngineering",
-      "url": "https://tryengineering.org/students/",
-      "description": "Hands-on activities and career spotlights across engineering disciplines."
-    },
-    {
-      "title": "NASA Jet Propulsion Laboratory STEM Lessons",
-      "url": "https://www.jpl.nasa.gov/edu/teach/",
-      "description": "Design challenges and lesson plans focused on space exploration engineering."
-    },
-    {
-      "title": "DiscoverE – Future City Resources",
-      "url": "https://discovere.org/resources/",
-      "description": "Project ideas and videos that highlight teamwork, safety, and innovation."
-    }
+    {"title": "NASA – For Students", "url": "https://www.nasa.gov/stem/forstudents/", "description": "Design challenges and engineering activities."},
+    {"title": "TeachEngineering", "url": "https://www.teachengineering.org/", "description": "Hands-on design lessons and projects."},
+    {"title": "Khan Academy – Engineering", "url": "https://www.khanacademy.org/science/engineering", "description": "Concepts behind structures, forces, and design."}
   ],
   "modules": [
-    {
-      "id": "fields-and-roles",
-      "title": "Fields & Roles",
-      "minutes": 40,
-      "type": "reading",
-      "instructions": "List four engineering disciplines (e.g., civil, mechanical, electrical, environmental) and an example project for each."
-    },
-    {
-      "id": "design-process",
-      "title": "Design Process",
-      "minutes": 45,
-      "type": "quiz",
-      "quiz": [
-        { "q": "Put these in order: prototype, define problem, test, brainstorm.", "a": "Define problem → Brainstorm → Prototype → Test" },
-        { "q": "Why iterate?", "a": "Testing reveals improvements; iteration optimizes performance and safety." }
-      ]
-    },
-    {
-      "id": "prototype",
-      "title": "Build a Prototype",
-      "minutes": 120,
-      "type": "project",
-      "instructions": "Design and build a small device (bridge, catapult, gear toy, sensor mount). Upload sketch, materials list, photos, and what you tested."
-    },
-    {
-      "id": "test-and-iterate",
-      "title": "Test & Iterate",
-      "minutes": 60,
-      "type": "report",
-      "instructions": "Record 2–3 test trials (what changed, results). Explain one improvement you made and why."
-    },
-    {
-      "id": "safety-and-ethics",
-      "title": "Safety & Ethics",
-      "minutes": 30,
-      "type": "reflection",
-      "prompt": "List three safety steps you followed while building/testing and one ethical responsibility engineers have to the public."
-    }
+    {"id": "intro", "title": "What Engineers Do", "minutes": 30, "type": "reflection", "prompt": "Identify two engineering fields that interest you and one problem each field helps solve."},
+    {"id": "fields", "title": "Explore Engineering Fields", "minutes": 45, "type": "reading", "instructions": "Research at least three branches (civil, mechanical, etc.) and capture education paths, example projects, and employers."},
+    {"id": "design", "title": "Design Challenge", "minutes": 120, "type": "project", "instructions": "Define a problem, brainstorm solutions, choose one, and plan materials plus testing steps."},
+    {"id": "test", "title": "Build & Test", "minutes": 120, "type": "report", "instructions": "Construct or simulate your design. Document results, data, and improvements after testing."},
+    {"id": "ethics", "title": "Engineering Ethics", "minutes": 35, "type": "research", "instructions": "Study two engineering case studies. Record what happened, decisions made, and lessons for safety and ethics."},
+    {"id": "service", "title": "Engineering Service", "minutes": 180, "type": "serviceLog", "instructions": "Contribute 3+ hours to STEM outreach or facility improvement. Log tasks, partners, and community benefit."}
   ],
   "checkpoints": [
-    { "id": "mid", "label": "Design Review", "after": "prototype" },
-    { "id": "final", "label": "Final Review", "after": "test-and-iterate" }
+    {"id": "cpA", "label": "Design Plan Review", "after": "design"},
+    {"id": "cpB", "label": "Testing Debrief", "after": "test"},
+    {"id": "final", "label": "Final Review", "after": "service"}
   ]
 }

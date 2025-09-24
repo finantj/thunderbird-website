@@ -1,65 +1,30 @@
 {
   "badgeId": "bird-study",
   "title": "Bird Study",
-  "summary": "Build identification skills, keep a field notebook, explore habitats and conservation, and share your observations.",
+  "summary": "Practice identifying birds, understand behavior and migration, and support conservation in your community.",
   "priceUSD": 20,
   "officialUrl": "https://www.scouting.org/merit-badges/bird-study/",
   "resources": [
-    {
-      "title": "Cornell Lab – All About Birds",
-      "url": "https://www.allaboutbirds.org/news/",
-      "description": "Field guides, ID tips, and seasonal birding advice."
-    },
-    {
-      "title": "Audubon Bird Guide App",
-      "url": "https://www.audubon.org/app",
-      "description": "Free mobile guide with photos, sounds, and habitat info."
-    },
-    {
-      "title": "Merlin Bird ID",
-      "url": "https://merlin.allaboutbirds.org/",
-      "description": "Instant identification help using photos or songs."
-    }
+    {"title": "Cornell Lab – All About Birds", "url": "https://www.allaboutbirds.org/", "description": "Field IDs, songs, and range maps."},
+    {"title": "Merlin Bird ID (app)", "url": "https://merlin.allaboutbirds.org/", "description": "Photo and sound ID in the field."},
+    {"title": "Audubon – Guide to North American Birds", "url": "https://www.audubon.org/bird-guide", "description": "Browse by family, habitat, and location."},
+    {"title": "eBird", "url": "https://ebird.org/", "description": "Crowdsourced sightings and hotspot maps."}
   ],
   "modules": [
-    {
-      "id": "id-basics",
-      "title": "Identification Basics",
-      "minutes": 40,
-      "type": "reading",
-      "instructions": "Describe how to ID birds using size/shape, field marks, behavior, habitat, and voice. List three local species with one distinguishing trait each."
-    },
-    {
-      "id": "field-notebook",
-      "title": "Field Notebook",
-      "minutes": 120,
-      "type": "project",
-      "instructions": "Keep a notebook with at least 6 observations on different days. For each: date, time, location, weather, species (or 'unknown'), behavior, and sketch/photo if possible."
-    },
-    {
-      "id": "habitats",
-      "title": "Habitats & Adaptations",
-      "minutes": 45,
-      "type": "reflection",
-      "prompt": "Pick two species and explain how their beaks, feet, or behavior fit their habitat."
-    },
-    {
-      "id": "conservation",
-      "title": "Conservation & Ethics",
-      "minutes": 35,
-      "type": "reading",
-      "instructions": "Summarize two threats to birds in your area (e.g., habitat loss, window strikes, invasive species) and one action you can take at home or school."
-    },
-    {
-      "id": "share-observations",
-      "title": "Share Your Observations",
-      "minutes": 45,
-      "type": "project",
-      "instructions": "Create a 3–5 minute presentation or one-page report highlighting three birds you observed. Include maps or checklists if you used them."
-    }
+    {"id": "goals", "title": "Birding Goals", "minutes": 20, "type": "reflection", "prompt": "Share why you want to study birds and two habitats you plan to explore."},
+    {"id": "field-log", "title": "Field Observation Log", "minutes": 180, "type": "serviceLog", "instructions": "Complete at least 3 outings. Log date, location, hours, species observed, and evidence (photo/audio link or description)."},
+    {"id": "field-guide", "title": "Build Your Field Guide", "minutes": 45, "type": "reading", "instructions": "Study five local species. Capture markings, songs, habitat, and distinguishing traits."},
+    {"id": "behavior", "title": "Behavior & Adaptations", "minutes": 60, "type": "research", "instructions": "Use three sources to explain migration or adaptation patterns for two species. Note why they evolved."},
+    {"id": "conservation", "title": "Conservation Service", "minutes": 180, "type": "serviceLog", "instructions": "Log 3+ hours helping birds (feeder build, habitat restoration, bird count). Include partners and impact."},
+    {"id": "quiz", "title": "Bird ID Quiz", "minutes": 20, "type": "quiz", "quiz": [
+      {"q": "Which sense do birds rely on most for migration navigation?", "a": "They use a combination of sight, sun position, and Earth’s magnetic field."},
+      {"q": "True/False: All songbirds migrate south for winter.", "a": "False"},
+      {"q": "Name one way to make windows safer for birds.", "a": "Examples: add decals/screens, close blinds, move feeders within 3 feet."}
+    ]}
   ],
   "checkpoints": [
-    { "id": "mid", "label": "Notebook Check", "after": "field-notebook" },
-    { "id": "final", "label": "Final Review", "after": "share-observations" }
+    {"id": "cpA", "label": "Field Notes Review", "after": "field-guide"},
+    {"id": "cpB", "label": "Behavior Discussion", "after": "behavior"},
+    {"id": "final", "label": "Final Review", "after": "conservation"}
   ]
 }
