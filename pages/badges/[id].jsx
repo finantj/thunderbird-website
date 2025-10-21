@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ProgressBar from "../../components/ProgressBar";
 import {
   getBadgeProgress,
   markPurchased,
   saveModuleWork,
   updateModule,
+  getAssistantThread,
+  appendAssistantMessages,
 } from "../../lib/store";
 
 const TIME_OPTIONS = {
@@ -26,6 +28,355 @@ function formatTimestamp(timestamp) {
     console.error("Unable to format timestamp", error);
     return null;
   }
+}
+
+function renderRichText(text) {
+  return text
+    .split(/(\*\*[^*]+\*\*)/g)
+    .filter(Boolean)
+    .map((segment, index) => {
+      if (segment.startsWith("**") && segment.endsWith("**")) {
+        return (
+          <strong key={index}>{segment.slice(2, -2)}</strong>
+        );
+      }
+      return <span key={index}>{segment}</span>;
+    });
+}
+
+function getDefaultAssistantPrompts(module) {
+  if (!module) {
+    return [
+      "Which module should I work on next?",
+      "How do I know if I'm ready for a checkpoint?",
+    ];
+  }
+  const prompts = [`What should my finished work for "${module.title}" include?`];
+  if (module.type === "project") {
+    prompts.push("Can you help me outline the project steps?");
+  }
+  if (module.type === "readingLog") {
+    prompts.push("What genres count toward the reading log?");
+  }
+  if (module.type === "serviceLog") {
+    prompts.push("How can I show proof of my service hours?");
+  }
+  if (module.prompt) {
+    prompts.push("Can you break the prompt into smaller tasks?");
+  }
+  return prompts.slice(0, 4);
+}
+
+function AssistantMessage({ message }) {
+  const isScout = message.role !== "assistant";
+  const bubbleStyle = {
+    background: isScout ? "#1d4ed8" : "rgba(45, 212, 191, 0.15)",
+    color: isScout ? "#fff" : "#e2e8f0",
+    padding: "10px 12px",
+    borderRadius: 12,
+    maxWidth: "100%",
+    boxShadow: "0 6px 16px rgba(15, 23, 42, 0.25)",
+    border: isScout ? "1px solid rgba(191, 219, 254, 0.4)" : "1px solid rgba(45, 212, 191, 0.25)",
+    whiteSpace: "pre-wrap",
+  };
+
+  const paragraphs = (message.content || "").split(/\n{2,}/g).filter(Boolean);
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: isScout ? "flex-end" : "flex-start",
+        gap: 8,
+      }}
+    >
+      <div style={bubbleStyle}>
+        {paragraphs.length ? (
+          paragraphs.map((paragraph, index) => {
+            const lines = paragraph.split("\n");
+            return (
+              <p key={index} style={{ margin: index === paragraphs.length - 1 ? 0 : "0 0 8px" }}>
+                {lines.map((line, lineIndex) => (
+                  <span key={`${index}-${lineIndex}`}>
+                    {renderRichText(line)}
+                    {lineIndex < lines.length - 1 ? <br /> : null}
+                  </span>
+                ))}
+              </p>
+            );
+          })
+        ) : (
+          <p style={{ margin: 0 }}>{message.content}</p>
+        )}
+      </div>
+      {Array.isArray(message.suggestions) && message.suggestions.length > 0 && (
+        <div
+          style={{
+            background: "rgba(30, 64, 175, 0.25)",
+            border: "1px solid rgba(129, 140, 248, 0.25)",
+            borderRadius: 10,
+            padding: "8px 10px",
+            color: "#cbd5f5",
+            fontSize: 13,
+          }}
+        >
+          <strong style={{ display: "block", marginBottom: 4 }}>Suggested steps</strong>
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {message.suggestions.map((suggestion, index) => (
+              <li key={index} style={{ marginBottom: 4 }}>
+                {suggestion}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {Array.isArray(message.resources) && message.resources.length > 0 && (
+        <div
+          style={{
+            background: "rgba(15, 118, 110, 0.2)",
+            border: "1px solid rgba(45, 212, 191, 0.4)",
+            borderRadius: 10,
+            padding: "8px 10px",
+            color: "#bbf7d0",
+            fontSize: 13,
+          }}
+        >
+          <strong style={{ display: "block", marginBottom: 4 }}>Helpful resources</strong>
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {message.resources.map((resource, index) => (
+              <li key={index} style={{ marginBottom: 4 }}>
+                <a
+                  href={resource.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#99f6e4" }}
+                >
+                  {resource.title}
+                </a>
+                {resource.description ? (
+                  <span style={{ color: "rgba(203, 213, 224, 0.8)", marginLeft: 4 }}>
+                    — {resource.description}
+                  </span>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AssistantDrawer({
+  open,
+  module,
+  badgeTitle,
+  thread,
+  prompts,
+  sending,
+  error,
+  onClose,
+  onSend,
+}) {
+  const [draft, setDraft] = useState("");
+  const scrollRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [open, thread]);
+
+  useEffect(() => {
+    if (open) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 120);
+    }
+  }, [open, module]);
+
+  useEffect(() => {
+    if (!open) {
+      setDraft("");
+    }
+  }, [open]);
+
+  if (!open) return null;
+
+  const moduleTitle = module ? module.title : badgeTitle;
+  const moduleSummary = module
+    ? module.instructions || module.prompt || "Ask for tips on how to answer this requirement."
+    : "Ask about your overall badge plan, checkpoints, or how to get ready for a review.";
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (!draft.trim() || sending) return;
+    onSend(draft.trim());
+    setDraft("");
+  };
+
+  const handlePrompt = (prompt) => {
+    setDraft(prompt);
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 60);
+  };
+
+  return (
+    <aside
+      style={{
+        position: "fixed",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        width: "min(420px, 100%)",
+        background: "#0f172a",
+        color: "#e2e8f0",
+        display: "flex",
+        flexDirection: "column",
+        boxShadow: "-8px 0 24px rgba(15, 23, 42, 0.4)",
+        zIndex: 50,
+      }}
+    >
+      <header
+        style={{
+          padding: "16px 20px",
+          borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontSize: 13, color: "#94a3b8", textTransform: "uppercase", letterSpacing: 0.5 }}>
+              AI Coach
+            </div>
+            <h2 style={{ margin: "4px 0 0", fontSize: 18, color: "#f8fafc" }}>{moduleTitle}</h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: "transparent",
+              color: "#cbd5f5",
+              border: "1px solid rgba(148, 163, 184, 0.4)",
+              borderRadius: 20,
+              padding: "4px 10px",
+              cursor: "pointer",
+            }}
+          >
+            Close
+          </button>
+        </div>
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5, color: "#cbd5f5" }}>{moduleSummary}</p>
+      </header>
+      <div
+        ref={scrollRef}
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "18px 20px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+        }}
+      >
+        {thread.messages && thread.messages.length > 0 ? (
+          thread.messages.map((message, index) => <AssistantMessage key={index} message={message} />)
+        ) : (
+          <div
+            style={{
+              background: "rgba(148, 163, 184, 0.1)",
+              border: "1px dashed rgba(148, 163, 184, 0.4)",
+              borderRadius: 12,
+              padding: 16,
+              fontSize: 13,
+              lineHeight: 1.6,
+              color: "#cbd5f5",
+            }}
+          >
+            Start by telling the coach what you need help with. Mention the requirement, an idea you have, or what is blocking you.
+          </div>
+        )}
+      </div>
+      {error ? (
+        <div style={{ color: "#fca5a5", fontSize: 13, padding: "0 20px 8px" }}>{error}</div>
+      ) : null}
+      {prompts && prompts.length > 0 && (
+        <div
+          style={{
+            padding: "0 20px 12px",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 8,
+          }}
+        >
+          {prompts.map((prompt, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => handlePrompt(prompt)}
+              style={{
+                background: "rgba(148, 163, 184, 0.18)",
+                color: "#e2e8f0",
+                border: "1px solid rgba(148, 163, 184, 0.4)",
+                borderRadius: 999,
+                padding: "6px 12px",
+                fontSize: 12,
+                cursor: "pointer",
+              }}
+            >
+              {prompt}
+            </button>
+          ))}
+        </div>
+      )}
+      <form onSubmit={handleSubmit} style={{ padding: "12px 20px 20px", borderTop: "1px solid rgba(148, 163, 184, 0.2)" }}>
+        <label style={{ display: "grid", gap: 8 }}>
+          <span style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: 0.4, color: "#94a3b8" }}>
+            Ask the coach
+          </span>
+          <textarea
+            ref={inputRef}
+            rows={3}
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder="Share what you're working on or ask for ideas."
+            style={{
+              resize: "vertical",
+              minHeight: 80,
+              borderRadius: 12,
+              border: "1px solid rgba(148, 163, 184, 0.35)",
+              padding: 12,
+              background: "rgba(15, 23, 42, 0.8)",
+              color: "#f8fafc",
+            }}
+          />
+        </label>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
+          <button
+            type="submit"
+            disabled={sending || !draft.trim()}
+            style={{
+              background: "#38bdf8",
+              border: "none",
+              borderRadius: 999,
+              padding: "8px 18px",
+              color: "#0f172a",
+              fontWeight: 600,
+              cursor: sending || !draft.trim() ? "not-allowed" : "pointer",
+              opacity: sending ? 0.7 : 1,
+            }}
+          >
+            {sending ? "Sending…" : "Send"}
+          </button>
+        </div>
+      </form>
+    </aside>
+  );
 }
 
 function normalizeEntry(type, entry = {}) {
@@ -230,6 +581,7 @@ function ModuleCard({
   onComplete,
   onReopen,
   totalModules,
+  onAskAssistant,
 }) {
   const [draft, setDraft] = useState(() => createInitialDraft(module, state));
   const [isDirty, setIsDirty] = useState(false);
@@ -367,6 +719,23 @@ function ModuleCard({
           <strong>Prompt:</strong> {module.prompt}
         </p>
       )}
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
+        <button
+          type="button"
+          onClick={() => onAskAssistant?.(module)}
+          style={{
+            background: "#1d4ed8",
+            color: "#fff",
+            border: "none",
+            borderRadius: 999,
+            padding: "6px 16px",
+            cursor: "pointer",
+          }}
+        >
+          Ask the AI coach
+        </button>
+      </div>
 
       {!purchased && (
         <div style={{ fontSize: 12, color: "#a00", marginBottom: 12 }}>
@@ -897,6 +1266,12 @@ export default function BadgePage() {
   const { id } = router.query;
   const [badge, setBadge] = useState(null);
   const [progress, setProgress] = useState(getBadgeProgress(id));
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantTarget, setAssistantTarget] = useState(null);
+  const [assistantThread, setAssistantThread] = useState({ moduleId: "general", messages: [] });
+  const [assistantPrompts, setAssistantPrompts] = useState([]);
+  const [assistantError, setAssistantError] = useState(null);
+  const [assistantSending, setAssistantSending] = useState(false);
   
   useEffect(() => {
     if (!id) return;
@@ -907,6 +1282,71 @@ export default function BadgePage() {
       setProgress(getBadgeProgress(id));
     }).catch(() => setBadge(null));
   }, [id]);
+
+  const openAssistant = useCallback((targetModule) => {
+    if (!id) return;
+    const threadData = getAssistantThread(id, targetModule?.id);
+    setAssistantTarget(targetModule || null);
+    setAssistantThread(threadData);
+    setAssistantPrompts(getDefaultAssistantPrompts(targetModule));
+    setAssistantError(null);
+    setAssistantOpen(true);
+  }, [id]);
+
+  const closeAssistant = useCallback(() => {
+    setAssistantOpen(false);
+  }, []);
+
+  const handleAssistantSend = useCallback(async (text) => {
+    if (!id) return;
+    const moduleId = assistantTarget?.id;
+    const userMessage = {
+      role: "scout",
+      content: text,
+      createdAt: new Date().toISOString(),
+    };
+    const nextThread = appendAssistantMessages(id, moduleId, [userMessage]);
+    setAssistantThread(nextThread);
+    setAssistantSending(true);
+    setAssistantError(null);
+
+    try {
+      const history = nextThread.messages.slice(-6).map((entry) => entry.content);
+      const response = await fetch("/api/assistant", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          badgeId: id,
+          moduleId: moduleId || "",
+          message: text,
+          history,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error(`Assistant request failed (${response.status})`);
+      }
+      const data = await response.json();
+      const assistantMessage = {
+        role: "assistant",
+        content: data.reply || "I don't have that answer yet, but let's try another angle together.",
+        suggestions: Array.isArray(data.suggestions) ? data.suggestions : undefined,
+        resources: Array.isArray(data.resources) ? data.resources : undefined,
+        createdAt: new Date().toISOString(),
+      };
+      const mergedThread = appendAssistantMessages(id, moduleId, [assistantMessage]);
+      setAssistantThread(mergedThread);
+      if (Array.isArray(data.followUps) && data.followUps.length) {
+        setAssistantPrompts(data.followUps);
+      } else {
+        setAssistantPrompts(getDefaultAssistantPrompts(assistantTarget));
+      }
+    } catch (error) {
+      console.error("Assistant request failed", error);
+      setAssistantError("We couldn't reach the AI coach. Try again in a few moments.");
+    } finally {
+      setAssistantSending(false);
+    }
+  }, [assistantTarget, id]);
 
   if (!id) return null;
   if (badge === null) return <main style={{padding:24}}>Badge not found.</main>;
@@ -1010,6 +1450,25 @@ export default function BadgePage() {
         ) : (
           <p style={{ marginBottom: 8 }}>All checkpoints are ready for review.</p>
         )}
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 12 }}>
+          <button
+            type="button"
+            onClick={() => openAssistant(null)}
+            style={{
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              borderRadius: 999,
+              padding: "8px 18px",
+              cursor: "pointer",
+            }}
+          >
+            Ask the AI coach about my plan
+          </button>
+          <span style={{ fontSize: 12, color: "#475569" }}>
+            The coach remembers your questions for this badge.
+          </span>
+        </div>
       </div>
 
       {checkpointDetails.length > 0 && (
@@ -1057,8 +1516,20 @@ export default function BadgePage() {
           onComplete={completeModule}
           onReopen={reopenModule}
           totalModules={totalModules}
+          onAskAssistant={openAssistant}
         />
       ))}
+      <AssistantDrawer
+        open={assistantOpen}
+        module={assistantTarget}
+        badgeTitle={badge.title}
+        thread={assistantThread}
+        prompts={assistantPrompts}
+        sending={assistantSending}
+        error={assistantError}
+        onClose={closeAssistant}
+        onSend={handleAssistantSend}
+      />
     </main>
   );
 }
